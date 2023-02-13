@@ -3,6 +3,7 @@
 
 https://github.com/macrozheng/springcloud-learning
 
+``` lua
 springcloud-learning
 ├── eureka-server -- eureka注册中心
 ├── eureka-security-server -- 带登录认证的eureka注册中心
@@ -36,3 +37,4 @@ springcloud-learning
 ├── seata-account-service -- 整合了seata的账户服务
 ├── micro-oauth2 -- Gateway + Oauth2 实现统一认证和鉴权
 └── micro-knife4j -- Gateway + Knife4j聚合API文档
+```
