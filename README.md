@@ -1,6 +1,8 @@
 # my-cloud
+原项目文档：
+https://www.macrozheng.com/cloud/cloud_catalog.html#%E7%AE%80%E4%BB%8B
 
-
+原项目git：
 https://github.com/macrozheng/springcloud-learning
 
 ``` lua
