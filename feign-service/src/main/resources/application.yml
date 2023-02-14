@@ -1,0 +1,29 @@
+#feign-service 远程服务调用
+server:
+  port: 8701
+spring:
+  application:
+    name: feign-service
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8001/eureka/
+
+#  当user-service服务都检查不到的时候，使用fallback配置的 UserFallbackService 中的方法
+feign:
+  hystrix:
+    enabled: true #在Feign中开启Hystrix
+  compression:
+    request:
+      enabled: false #是否对请求进行GZIP压缩
+      mime-types: text/xml,application/xml,application/json #指定压缩的请求数据类型
+      min-request-size: 2048 #超过该大小的请求会被压缩
+    response:
+      enabled: false #是否对响应进行GZIP压缩
+
+# 在FeignConfig中开启日志功能后，设置需要开启日志的feign客户端
+logging:
+  level:
+    com.example.cloud.feignservice.service.UserService: debug
