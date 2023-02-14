@@ -1,0 +1,28 @@
+# config-client：(配置客户端)外部集中化配置管理
+# 文件使用 bootstrap.yml 此配置优先于 application.yml 加载
+# 访问 http://localhost:9001/configInfo，可以获取到dev分支下dev环境的配置
+# 访问 http://localhost:9001/actuator/refresh 刷新配置文件
+#  (原本获取git上的配置文件启动服务，git上配置文件调整后使用 refresh 将最新的文件获取到)
+server:
+  port: 9001
+spring:
+  application:
+    name: config-client
+  cloud:
+    config: #Config客户端配置
+      profile: dev #启用配置后缀名称
+      label: dev #分支名称
+      uri: http://localhost:8901 #配置中心地址
+      name: config #配置文件名称
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8001/eureka/
+
+
+# 当Git仓库中的配置信息更改后，我们可以通过SpringBoot Actuator的refresh端点来刷新客户端配置信息
+management:
+  endpoints:
+    web:
+      exposure:
+        include: 'refresh'

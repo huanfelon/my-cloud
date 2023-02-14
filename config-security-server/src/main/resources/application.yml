@@ -1,0 +1,19 @@
+# config-security-server 为配置中心添加用户认证
+server:
+  port: 8905
+spring:
+  application:
+    name: config-security-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://gitee.com/huanfelon/mycloud-config.git
+          username: huanfelon
+          password: 1314520ahfl
+          clone-on-start: true #开启启动时直接从git获取配置
+  security: #配置用户名和密码
+    user:
+      name: macro
+      password: 123456
+

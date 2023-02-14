@@ -1,0 +1,22 @@
+# config-server：(配置服务端)外部集中化配置管理
+# 访问  http://localhost:8901/master/config-dev 获取master分支上dev环境的配置信息
+# 访问 http://localhost:8901/master/config-dev.yml 来获取master分支上dev环境的配置文件信息
+server:
+  port: 8901
+spring:
+  application:
+    name: config-server
+  cloud:
+    config:
+      server:
+        git: #配置存储配置信息的Git仓库
+#          uri: https://gitee.com/macrozheng/springcloud-config.git
+          uri: https://gitee.com/huanfelon/mycloud-config.git
+          username: huanfelon
+          password: 1314520ahfl
+          clone-on-start: true #开启启动时直接从git获取配置
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8001/eureka/
+
