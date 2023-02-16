@@ -1,0 +1,151 @@
+# Spring Cloud Gateway：API网关服务
+# http://localhost:9201/user/1 通过网关转发到 user-service的该路径上：http://localhost:8201/user/1
+server:
+  port: 9201
+service-url:
+  user-service: http://localhost:8201
+logging:
+  level:
+    org.springframework.cloud.gateway: debug
+
+
+# gateway 模板
+spring-model:
+  cloud:
+    gateway:
+      routes:
+        - id: path_route #路由的ID
+          uri: ${service-url.user-service}/user/{id} #匹配后路由地址
+          predicates: # 断言，路径相匹配的进行路由
+            # 路径匹配
+            - Path=/user/{id}
+            # 在时间之前
+            - Before=2019-09-24T16:30:00+08:00[Asia/Shanghai]
+            # 在时间之后
+            - After=2019-09-24T16:30:00+08:00[Asia/Shanghai]
+            # 在时间中间
+            - Between=2019-09-24T16:30:00+08:00[Asia/Shanghai], 2019-09-25T16:30:00+08:00[Asia/Shanghai]
+            # 有匹配cookie
+            - Cookie=username,macro
+            # 有指定请求头
+            - Header=X-Request-Id, \d+
+            # 有指定Host
+            - Host=**.macrozheng.com
+            # 有指定方法
+            - Method=GET
+            # 指定查询参数
+            - Query=username
+            # 指定远程地址发起的请求
+            - RemoteAddr=192.168.1.1/24
+          # 给请求添加参数的过滤器。
+          filters:
+          # 对GET请求添加username=macro的请求参数
+          - AddRequestParameter=username, macro
+          # 对指定数量的路径前缀进行去除的过滤器
+          - StripPrefix=2
+          # 对所有GET请求添加/user路径前缀
+          - PrefixPath=/user
+        # 使用权重来路由相应请求，以下表示有
+        # 80%的请求会被路由到localhost:8201，20%会被路由到localhost:8202。
+        - id: weight_high
+          uri: http://localhost:8201
+          predicates:
+            - Weight=group1, 8
+        - id: weight_low
+          uri: http://localhost:8202
+          predicates:
+            - Weight=group1, 2
+
+
+
+# hystrix 当路由出错时会转发到服务降级处理的控制器上
+# http://localhost:9201/user/1
+spring-hystrix:
+  cloud:
+    gateway:
+      routes:
+        - id: hystrix_route
+          uri: http://localhost:8201
+          predicates:
+            - Method=GET
+          filters:
+            - name: Hystrix
+              args:
+                name: fallbackcmd
+                fallbackUri: forward:/fallback
+
+
+
+# 通过 RequestRateLimiter 使用redis进行限流
+# http://localhost:9201/user/1
+spring-redis:
+  redis:
+    host: '127.0.0.1'
+    port: 6379
+  cloud:
+    gateway:
+      routes:
+        - id: requestratelimiter_route
+          uri: http://localhost:8201
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1 #每秒允许处理的请求数量
+                redis-rate-limiter.burstCapacity: 2 #每秒最大处理的请求数量
+                key-resolver: "#{@ipKeyResolver}" #限流策略，对应策略的Bean
+          predicates:
+            - Method=GET
+
+
+
+# Retry GatewayFilter 对路由请求进行重试的过滤器
+# http://localhost:9201/user/111
+# user-service控制台报错2次，说明进行了一次重试。
+spring-Retry:
+  cloud:
+    gateway:
+      routes:
+        - id: retry_route
+          uri: http://localhost:8201
+          predicates:
+            - Method=GET
+          filters:
+            - name: Retry
+              args:
+                retries: 1 #需要进行重试的次数
+                statuses: BAD_GATEWAY #返回哪个状态码需要进行重试，返回状态码为5XX进行重试
+                backoff:
+                  firstBackoff: 10ms
+                  maxBackoff: 50ms
+                  factor: 2
+                  basedOnPreviousValue: false
+
+
+
+# 结合注册中心 zuul 使用（Zuul会根据注册中心注册的服务列表，以服务名为路径创建动态路由）
+# 通过 http://localhost:9201/user-service/user/1
+# 可以路由到user-service的 http://localhost:8201/user/1
+
+# 使用了PrefixPath过滤器后访问 http://localhost:9201/1
+# 可以路由到user-service的 http://localhost:8201/user/1
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      # 使用了PrefixPath过滤器，会为所有GET请求路径添加/user路径并路由；
+      routes:
+        - id: prefixpath_route
+          uri: lb://user-service #此处需要使用lb协议
+          predicates:
+            - Method=GET
+          filters:
+            - PrefixPath=/user
+      discovery:
+        locator:
+          enabled: true #开启从注册中心动态创建路由的功能
+          lower-case-service-id: true #使用小写服务名，默认是大写
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8001/eureka/
