@@ -1,0 +1,60 @@
+# sentinel-service 熔断与限流服务
+# 先启动Nacos和sentinel-service，
+# 访问； http://localhost:8401/rateLimit/byResource
+# 通过 http://localhost:8401/rateLimit/byUrl 测试 url限流功能
+# 通过 http://localhost:8401/breaker/fallback/4 测试 熔断功能进行降级
+# 通过 http://localhost:8401/breaker/fallbackException/2 忽略异常信息不进行降级
+
+server:
+  port: 8401
+spring:
+  application:
+    name: sentinel-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848 #配置Nacos地址
+    sentinel:
+      transport:
+        dashboard: localhost:8080 #配置sentinel dashboard地址
+        port: 8719
+      # 配置nacos的数据源（ dataId为 sentinel-service-sentinel ）
+#      [
+#      {
+#        "resource": "/rateLimit/byUrl",
+#        "limitApp": "default",
+#        "grade": 1,
+#        "count": 1,
+#        "strategy": 0,
+#        "controlBehavior": 0,
+#        "clusterMode": false
+#      }
+#      ]
+#      resource：资源名称；
+#      limitApp：来源应用；
+#      grade：阈值类型，0表示线程数，1表示QPS；
+#      count：单机阈值；
+#      strategy：流控模式，0表示直接，1表示关联，2表示链路；
+#      controlBehavior：流控效果，0表示快速失败，1表示Warm Up，2表示排队等待；
+#      clusterMode：是否集群。
+      datasource:
+        ds1:
+          nacos:
+            server-addr: localhost:8848
+            dataId: ${spring.application.name}-sentinel
+            groupId: DEFAULT_GROUP
+            data-type: json
+            rule-type: flow
+service-url:
+  user-service: http://nacos-user-service
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+# 通过 http://localhost:8401/user/4  返回服务降级处理信息
+# 在调用feign接口的过程中出现了异常的时候，使用 UserFallbackService 中实现的相同的方法进行返回
+feign:
+  sentinel:
+    enabled: true #打开sentinel对feign的支持
