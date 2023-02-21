@@ -1,0 +1,15 @@
+server:
+  port: 9401
+spring:
+  application:
+    name: oauth2-service
+# 授权码模式使用
+# 启动oauth2-server服务；
+# 在浏览器访问该地址进行登录授权：http://localhost:9401/oauth/authorize?response_type=code&client_id=admin&redirect_uri=http://www.baidu.com&scope=all&state=normal
+# http://localhost:9401/oauth/token 获取令牌
+# http://localhost:9401/user/getCurrentUser 使用令牌进行查询
+
+# Resource owner（资源拥有者）：拥有该资源的最终用户，他有访问资源的账号密码；
+# Client（客户端）：访问资源的客户端，会使用访问令牌去获取资源服务器的资源，可以是浏览器、移动设备或者服务器；
+# Resource server（资源服务器）：拥有受保护资源的服务器，如果请求包含正确的访问令牌，可以访问资源；(ResourceServerConfig)
+# Authorization server（认证服务器）：用于认证用户的服务器，如果客户端认证通过，发放访问资源服务器的令牌。(AuthorizationServerConfig)
