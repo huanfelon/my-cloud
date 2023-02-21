@@ -1,0 +1,7 @@
+# nacos-config-client 使用nacos做配置中心
+# 需要在nacos中添加dataid: nacos-config-client-dev.yaml
+# 即应用名称-环境.yaml
+# 最后通过 http://localhost:9101/configInfo  访问配置信息
+spring:
+  profiles:
+    active: dev

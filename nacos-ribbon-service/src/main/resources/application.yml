@@ -1,0 +1,14 @@
+# nacos-ribbon-service 使用nacos做负载均衡功能
+# http://localhost:8308/user/1
+# nacos-user-service 的启动的多个服务会交替打印
+server:
+  port: 8308
+spring:
+  application:
+    name: nacos-ribbon-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+service-url:
+  nacos-user-service: http://nacos-user-service
