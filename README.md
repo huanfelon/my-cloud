@@ -27,9 +27,9 @@ springcloud-learning
 ├── admin-server -- admin监控中心服务
 ├── admin-client -- admin监控中心监控的应用服务
 ├── admin-security-server -- 带登录认证的admin监控中心服务
-├── oauth2-server -- oauth2认证测试服务
-├── oauth2-jwt-server -- 使用jwt的oauth2认证测试服务
-├── oauth2-client -- 单点登录的oauth2客户端服务
+├── oauth2-server -- oauth2认证测试服务（删除）
+├── oauth2-jwt-server -- 使用jwt的oauth2认证测试服务（删除）
+├── oauth2-client -- 单点登录的oauth2客户端服务（删除）
 ├── nacos-config-client -- 用于演示nacos作为配置中心的nacos客户端
 ├── nacos-user-service -- 注册到nacos的提供User对象CRUD接口的服务
 ├── nacos-ribbon-service -- 注册到nacos的ribbon服务调用测试服务
